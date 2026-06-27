@@ -1,0 +1,12 @@
+{
+  // Tell Pyrright/Pylance (and Pyrefly) where the virtual environment lives.
+  // This makes the IDE resolve fastapi, sqlalchemy, pydantic etc. from the
+  // venv instead of the system Python — eliminating all "Cannot find module" errors.
+  "venvPath": ".",
+  "venv": "env",
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingModuleSource": false
+}

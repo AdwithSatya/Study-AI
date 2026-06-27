@@ -1,41 +1,102 @@
-import { useState } from 'react'
-import Sidebar from './components/Sidebar'
-import ChatWindow from './components/ChatWindow'
+import { useState, useEffect } from "react";
+import { AppStateProvider, useAppState, useAppDispatch } from "./store";
+import { listFolders } from "./api";
+import AuthPage from "./components/AuthPage";
+import Sidebar from "./components/Sidebar";
+import ChatWindow from "./components/ChatWindow";
+import Onboarding from "./components/Onboarding";
 
-function App() {
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+// ── Toast state lives at app level ───────────────────────────────────────────
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
-  return (
-    <div style={{ display: "flex", width: "100%", height: "100vh" }}>
-      <Sidebar onUploadSuccess={showToast} />
-      <ChatWindow />
-      
-      {/* Global Toast Notification */}
-      {toastMessage && (
-        <div style={{
-          position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)",
-          background: toastMessage.includes("✅") ? "var(--success)" : "var(--error)",
-          color: "#000", padding: "10px 20px", borderRadius: 8,
-          boxShadow: "var(--shadow)", zIndex: 1000, fontWeight: 500, fontSize: 14,
-          animation: "slideDown 0.3s ease-out"
-        }}>
-          {toastMessage}
-        </div>
-      )}
-      
-      <style>{`
-        @keyframes slideDown {
-          from { transform: translate(-50%, -20px); opacity: 0; }
-          to { transform: translate(-50%, 0); opacity: 1; }
-        }
-      `}</style>
-    </div>
-  )
+interface Toast {
+  id: number;
+  msg: string;
+  type: "success" | "error";
 }
 
-export default App
+let toastId = 0;
+
+function AppInner() {
+  const { token } = useAppState();
+  const dispatch = useAppDispatch();
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [loadingFolders, setLoadingFolders] = useState(true);
+  const [isOnboarded, setIsOnboarded] = useState(false);
+
+  const showToast = (msg: string, type: "success" | "error") => {
+    const id = ++toastId;
+    setToasts((t) => [...t, { id, msg, type }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3500);
+  };
+
+  useEffect(() => {
+    if (!token) {
+      setLoadingFolders(true);
+      setIsOnboarded(false);
+      return;
+    }
+
+    setLoadingFolders(true);
+    listFolders(token)
+      .then((f) => {
+        dispatch({ type: "SET_FOLDERS", folders: f });
+        if (f.length > 0) {
+          setIsOnboarded(true);
+          // Select first folder automatically if none selected
+          dispatch({ type: "SELECT_FOLDER", folder: f[0] });
+        } else {
+          setIsOnboarded(false);
+        }
+      })
+      .catch(() => {
+        setIsOnboarded(false);
+      })
+      .finally(() => {
+        setLoadingFolders(false);
+      });
+  }, [token, dispatch]);
+
+  if (!token) return <AuthPage />;
+
+  if (loadingFolders) {
+    return (
+      <div className="flex items-center justify-center min-h-screen w-full bg-[#121414] text-[#e3e2e2]">
+        <div className="flex flex-col items-center gap-sm">
+          <span className="material-symbols-outlined text-4xl text-[#cabeff] animate-spin">sync</span>
+          <span className="font-body-md text-on-surface-variant">Loading workspaces...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isOnboarded) {
+    return <Onboarding onComplete={() => setIsOnboarded(true)} onToast={showToast} />;
+  }
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-on-surface">
+      <Sidebar onToast={showToast} />
+      <ChatWindow onToast={showToast} />
+
+      {/* Toast stack */}
+      <div
+        aria-live="polite"
+        style={{ position: "fixed", top: 20, left: "50%", translate: "-50% 0", zIndex: 9999, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}
+      >
+        {toasts.map((t) => (
+          <div key={t.id} className={`toast ${t.type}`}>
+            {t.msg}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppStateProvider>
+      <AppInner />
+    </AppStateProvider>
+  );
+}

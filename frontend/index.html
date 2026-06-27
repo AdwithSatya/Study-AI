@@ -4,7 +4,108 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyAI</title>
+    <title>NoteAI - Premium Study Workspace</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#690005",
+              "on-secondary-fixed": "#1b0062",
+              "on-primary-fixed-variant": "#4816cb",
+              "tertiary": "#ffb780",
+              "surface-tint": "#cabeff",
+              "on-tertiary-fixed": "#2f1400",
+              "on-surface": "#e3e2e2",
+              "secondary-fixed": "#e6deff",
+              "on-tertiary-container": "#442000",
+              "surface-container-highest": "#343535",
+              "on-tertiary-fixed-variant": "#6f3800",
+              "primary": "#cabeff",
+              "secondary-container": "#483599",
+              "surface-container-high": "#292a2a",
+              "primary-fixed-dim": "#cabeff",
+              "surface-container-lowest": "#0d0e0f",
+              "outline": "#938ea1",
+              "error-container": "#93000a",
+              "inverse-primary": "#603ce2",
+              "outline-variant": "#484555",
+              "inverse-on-surface": "#303031",
+              "on-secondary": "#311a82",
+              "background": "#121414",
+              "on-primary-container": "#2a0088",
+              "secondary": "#c9beff",
+              "tertiary-container": "#d7791f",
+              "inverse-surface": "#e3e2e2",
+              "on-secondary-container": "#b8aaff",
+              "on-primary": "#31009a",
+              "on-primary-fixed": "#1c0062",
+              "on-secondary-fixed-variant": "#483599",
+              "surface-bright": "#383939",
+              "primary-fixed": "#e6deff",
+              "on-error-container": "#ffdad6",
+              "surface-dim": "#121414",
+              "on-tertiary": "#4e2600",
+              "tertiary-fixed-dim": "#ffb780",
+              "on-background": "#e3e2e2",
+              "surface-container": "#1f2020",
+              "on-surface-variant": "#c9c4d8",
+              "surface-container-low": "#1b1c1c",
+              "error": "#ffb4ab",
+              "secondary-fixed-dim": "#c9beff",
+              "surface": "#121414",
+              "primary-container": "#947dff",
+              "surface-variant": "#343535",
+              "tertiary-fixed": "#ffdcc4"
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            spacing: {
+              "base": "4px",
+              "xs": "8px",
+              "sm": "16px",
+              "xl": "64px",
+              "md": "24px",
+              "margin-mobile": "16px",
+              "gutter": "24px",
+              "margin-desktop": "48px",
+              "lg": "40px"
+            },
+            fontFamily: {
+              "headline-lg": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "label-sm": ["Inter"],
+              "display-lg": ["Inter"],
+              "body-md": ["Inter"],
+              "body-lg": ["Inter"],
+              "title-md": ["Inter"]
+            },
+            fontSize: {
+              "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+              "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+              "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }],
+              "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+              "body-md": ["14px", { "lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400" }],
+              "body-lg": ["16px", { "lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400" }],
+              "title-md": ["20px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500" }]
+            }
+          }
+        }
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>

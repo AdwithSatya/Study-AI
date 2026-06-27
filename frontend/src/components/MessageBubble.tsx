@@ -7,65 +7,43 @@ interface Props {
 export default function MessageBubble({ role, content, sources }: Props) {
   const isUser = role === "user";
 
-  return (
-    <div style={{
-      display: "flex",
-      justifyContent: isUser ? "flex-end" : "flex-start",
-      marginBottom: 16,
-    }}>
-      {!isUser && (
-        <div style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: "linear-gradient(135deg, var(--accent), #a78bfa)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, marginRight: 10, flexShrink: 0, alignSelf: "flex-end",
-        }}>🧠</div>
-      )}
-
-      <div style={{ maxWidth: "72%", display: "flex", flexDirection: "column", gap: 6 }}>
-        <div style={{
-          padding: "12px 16px",
-          borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-          background: isUser
-            ? "linear-gradient(135deg, var(--accent), #a78bfa)"
-            : "var(--bg-card)",
-          border: isUser ? "none" : "1px solid var(--border)",
-          fontSize: 14,
-          lineHeight: 1.6,
-          color: isUser ? "#fff" : "var(--text-primary)",
-          boxShadow: isUser ? "0 4px 16px rgba(108, 99, 255, 0.3)" : "none",
-          whiteSpace: "pre-wrap",
-        }}>
-          {content}
+  if (isUser) {
+    return (
+      <div className="flex gap-md justify-end">
+        <div className="flex flex-col gap-sm max-w-xl bg-surface-container-high p-md rounded-2xl rounded-tr-none shadow-md">
+          <p className="font-body-lg text-body-lg text-on-surface whitespace-pre-wrap">
+            {content}
+          </p>
         </div>
+      </div>
+    );
+  }
 
-        {/* Source citations */}
-        {!isUser && sources && sources.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingLeft: 4 }}>
-            {sources.map((s) => (
-              <span key={s} style={{
-                fontSize: 10, padding: "2px 8px",
-                background: "var(--accent-dim)",
-                color: "var(--accent-light)",
-                borderRadius: 20,
-                border: "1px solid rgba(108, 99, 255, 0.3)",
-              }}>
-                📎 {s}
+  return (
+    <div className="flex gap-md">
+      <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 text-on-primary">
+        <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+      </div>
+      <div className="flex flex-col gap-sm max-w-2xl">
+        <p className="font-body-lg text-body-lg text-on-surface whitespace-pre-wrap">
+          {content}
+        </p>
+
+        {sources && sources.length > 0 && (
+          <div className="flex flex-wrap gap-xs mt-xs" aria-label="Sources">
+            {sources.map((source, i) => (
+              <span
+                key={i}
+                className="bg-surface-container text-on-surface-variant text-[11px] px-sm py-1 rounded-full flex items-center gap-xs border border-outline-variant hover:bg-surface-container-high cursor-pointer transition-colors"
+                title={source}
+              >
+                <span className="material-symbols-outlined text-[13px]">link</span>
+                {source}
               </span>
             ))}
           </div>
         )}
       </div>
-
-      {isUser && (
-        <div style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: "var(--bg-hover)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14, marginLeft: 10, flexShrink: 0, alignSelf: "flex-end",
-          border: "1px solid var(--border)",
-        }}>👤</div>
-      )}
     </div>
   );
 }

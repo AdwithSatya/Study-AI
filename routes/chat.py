@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from database import get_db
-from models.orm import User, Chat,Folder
-from models.schemas import Request, Response
+from models.orm import User, Chat, Folder, Message
+from models.schemas import Request, Response, ChatCreate, ChatResponse, ChatUpdate
 from ai.agent import get_response as get_ai_response
 from core.auth_deps import get_current_user
 import uuid
 from datetime import datetime, timezone
+
 router = APIRouter(prefix="/chat", tags=["chat"])
-from models.schemas import ChatCreate, ChatResponse, ChatUpdate
 
 @router.post("/create", response_model=ChatResponse)
 async def create_chat(
@@ -38,7 +38,7 @@ async def create_chat(
 
     return ChatResponse(chat_id=new_chat.chat_id, chat_name=new_chat.chat_name)
 
-@router.post("/ask{chat_id}", response_model=Response)
+@router.post("/ask", response_model=Response)
 async def ask(
     input: Request,
     current_user: User = Depends(get_current_user),
@@ -110,8 +110,6 @@ async def delete_chat(
         raise HTTPException(status_code=404, detail="Chat not found")
 
     # Delete all messages in the chat history
-    from sqlalchemy import delete
-    from models.db_models import Message
     await db.execute(
         delete(Message).where(Message.chat_id == chat_id)
     )

@@ -16,21 +16,22 @@ python-jose==3.5.0
 argon2-cffi==25.1.0
 
 # --- AI / LangChain ---
-langchain==1.2.15
-langchain-groq==1.1.2
-langchain-community==0.4.1
-langchain-core==1.2.19
-langchain-text-splitters==1.1.1
-langchain-huggingface==0.1.2
-groq==0.37.1
+# Unpinned so pip can resolve a compatible set across all langchain packages.
+langchain>=0.3,<2.0
+langchain-groq>=0.2
+langchain-community>=0.3
+langchain-core>=0.3,<2.0
+langchain-text-splitters>=0.3
+langchain-huggingface>=0.1
+groq>=0.9
 
 # --- Vector DB ---
 # Embeddings are generated via HuggingFace Inference API (no local model weights)
 # — keeps the Render free-tier deployment well under the 525 MB RAM limit.
-chromadb==1.5.7
+chromadb>=1.0
 
 # --- Document Parsing ---
 PyMuPDF==1.27.2.2
 python-docx==1.1.2
 python-pptx==1.0.2
-httpx==0.28.1
+httpx>=0.27

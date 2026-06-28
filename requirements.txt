@@ -1,22 +1,35 @@
-fastapi==0.135.1਍ഀ
-uvicorn==0.44.0਍ഀ
-sqlalchemy==2.0.48਍ഀ
-asyncpg==0.31.0਍ഀ
-python-dotenv==1.2.2਍ഀ
-pydantic==2.12.5਍ഀ
-python-jose==3.5.0਍ഀ
-argon2-cffi==25.1.0਍ഀ
-python-multipart==0.0.26਍ഀ
-langchain==1.2.15਍ഀ
-langchain-groq==1.1.2਍ഀ
-langchain-community==0.4.1਍ഀ
-langchain-core==1.2.19਍ഀ
-langchain-text-splitters==1.1.1਍ഀ
-chromadb==1.5.7਍ഀ
-sentence-transformers==5.4.0਍ഀ
-PyMuPDF==1.27.2.2਍ഀ
-groq==0.37.1਍ഀ
-httpx==0.28.1਍ഀ
-python-docx==1.1.2਍ഀ
-unstructured==0.17.2਍ഀ
+# --- Core API Web Server ---
+fastapi==0.135.1
+uvicorn==0.44.0
+python-dotenv==1.2.2
 email-validator==2.2.0
+
+# --- Corrected Multipart Handling (Crucial for FastAPI Form/File Uploads) ---
+python-multipart>=0.0.27
+
+# --- Database & Async Connectors ---
+sqlalchemy==2.0.48
+asyncpg==0.31.0
+
+# --- Security & Hashing ---
+python-jose==3.5.0
+argon2-cffi==25.1.0
+
+# --- AI & Orchestration (LangChain ecosystem) ---
+langchain==1.2.15
+langchain-groq==1.1.2
+langchain-community==0.4.1
+langchain-core==1.2.19
+langchain-text-splitters==1.1.1
+groq==0.37.1
+
+# --- Vector Database & Embeddings ---
+chromadb==1.5.7
+sentence-transformers==5.4.0
+
+# --- Data Extraction & Heavy Document Parsing ---
+PyMuPDF==1.27.2.2
+python-docx==1.1.2
+unstructured[all-docs]==0.17.2
+httpx==0.28.1
+

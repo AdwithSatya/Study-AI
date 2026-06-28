@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { AppStateProvider, useAppState, useAppDispatch } from "./store";
 import { listFolders } from "./api";
-import AuthPage from "./components/AuthPage";
+import AuthPage from "./components/auth/AuthPage";
 import Sidebar from "./components/Sidebar";
-import ChatWindow from "./components/ChatWindow";
-import Onboarding from "./components/Onboarding";
+import ChatWindow from "./components/chat/ChatWindow";
+import Onboarding from "./components/onboarding/Onboarding";
 
 // ── Toast state lives at app level ───────────────────────────────────────────
 
@@ -49,6 +49,7 @@ function AppInner() {
         }
       })
       .catch(() => {
+        dispatch({ type: "LOGOUT" });
         setIsOnboarded(false);
       })
       .finally(() => {
@@ -56,7 +57,7 @@ function AppInner() {
       });
   }, [token, dispatch]);
 
-  if (!token) return <AuthPage />;
+  if (!token) return <AuthPage onToast={showToast} />;
 
   if (loadingFolders) {
     return (

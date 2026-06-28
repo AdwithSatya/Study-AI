@@ -33,29 +33,26 @@ class UserOut(BaseModel):
 # Token:        what we send BACK — the JWT access token string
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str       # plain-text; we verify against the argon2 hash in DB
 
 
 class Token(BaseModel):
-    """
-    The response body after a successful login.
-
-    access_token — the actual JWT string, e.g. "eyJhbGci..."
-    token_type   — always "bearer"; tells the client how to send it back:
-                   Authorization: Bearer <access_token>
-    """
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
 
 
 class TokenData(BaseModel):
-    """
-    The decoded contents of a JWT (the 'payload').
-    We store user_id inside the token so we can identify the user
-    on every protected request without hitting the database.
-    """
     user_id: str | None = None
+
+
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class LogoutRequest(BaseModel):
+    refresh_token: str
 
 
 # ── Chat schemas ──────────────────────────────────────────────────────────────
@@ -87,3 +84,13 @@ class FolderCreate(BaseModel):
 class FolderResponse(BaseModel):
     folder_id: UUID
     folder_name: str
+
+class FolderUpdate(BaseModel):
+    folder_name: str
+
+class ChatUpdate(BaseModel):
+    chat_name: str
+
+class FileUpdate(BaseModel):
+    file_name: str
+

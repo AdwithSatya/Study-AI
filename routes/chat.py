@@ -9,7 +9,7 @@ from core.deps import get_current_user
 import uuid
 from datetime import datetime, timezone
 router = APIRouter(prefix="/chat", tags=["chat"])
-from models.schemas import ChatCreate, ChatResponse
+from models.schemas import ChatCreate, ChatResponse, ChatUpdate
 
 @router.post("/create", response_model=ChatResponse)
 async def create_chat(
@@ -38,7 +38,7 @@ async def create_chat(
 
     return ChatResponse(chat_id=new_chat.chat_id, chat_name=new_chat.chat_name)
 
-@router.post("/ask", response_model=Response)
+@router.post("/ask{chat_id}", response_model=Response)
 async def ask(
     input: Request,
     current_user: User = Depends(get_current_user),
@@ -73,3 +73,51 @@ async def list_chats(
     )
     chats = result.scalars().all()
     return {"chats": [{"chat_id": c.chat_id, "chat_name": c.chat_name} for c in chats]}
+
+
+@router.put("/{chat_id}", response_model=ChatResponse)
+async def update_chat(
+    chat_id: uuid.UUID,
+    input: ChatUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Chat).where(Chat.chat_id == chat_id)
+    )
+    chat = result.scalar_one_or_none()
+
+    if not chat or chat.user_id != current_user.user_id:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    chat.chat_name = input.chat_name
+    await db.commit()
+    return ChatResponse(chat_id=chat.chat_id, chat_name=chat.chat_name)
+
+
+@router.delete("/{chat_id}")
+async def delete_chat(
+    chat_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Chat).where(Chat.chat_id == chat_id)
+    )
+    chat = result.scalar_one_or_none()
+
+    if not chat or chat.user_id != current_user.user_id:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    # Delete all messages in the chat history
+    from sqlalchemy import delete
+    from models.db_models import Message
+    await db.execute(
+        delete(Message).where(Message.chat_id == chat_id)
+    )
+
+    # Delete the chat record
+    await db.delete(chat)
+    await db.commit()
+
+    return {"detail": "Chat and its history deleted successfully"}

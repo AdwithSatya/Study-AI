@@ -46,9 +46,10 @@ ph = PasswordHasher(
 )
 
 # ── JWT configuration (read from .env) ───────────────────────────────────────
-SECRET_KEY  = os.getenv("SECRET_KEY")
-ALGORITHM   = os.getenv("JWT_ALGORITHM")
-EXPIRE_MINS = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRET_KEY         = os.getenv("SECRET_KEY")          # signs access tokens
+REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY")  # signs refresh tokens (separate key)
+ALGORITHM         = os.getenv("JWT_ALGORITHM")
+EXPIRE_MINS        = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -109,9 +110,24 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+
+def create_refresh_token(data: dict, expires_at: datetime | None = None) -> str:
+    """
+    Create a signed refresh token using REFRESH_SECRET_KEY.
+
+    `expires_at` — pass the original token's expiry to preserve lifetime on
+                   rotation instead of extending it by another 7 days.
+    """
+    payload = data.copy()
+    expire = expires_at or (datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    payload.update({"exp": expire})
+    return jwt.encode(payload, REFRESH_SECRET_KEY, algorithm=ALGORITHM)
+
+
 def decode_access_token(token: str) -> dict:
     """
-    Decode and VERIFY a JWT token.
+    Decode and VERIFY an access token signed with SECRET_KEY.
 
     Raises jose.JWTError if:
       - The signature doesn't match (tampered token).
@@ -121,3 +137,14 @@ def decode_access_token(token: str) -> dict:
     On success returns the payload dict, e.g. {"sub": "uuid", "exp": ...}
     """
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+def decode_refresh_token(token: str) -> dict:
+    """
+    Decode and VERIFY a refresh token signed with REFRESH_SECRET_KEY.
+
+    Using a separate secret means a leaked access-token secret cannot be used
+    to forge refresh tokens, and vice versa.
+
+    Raises jose.JWTError on invalid/expired/tampered tokens.
+    """
+    return jwt.decode(token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM])

@@ -3,8 +3,8 @@ import {
   listFolders, createFolder,
   listFiles, uploadFile,
   type Folder, type FileItem
-} from "../api";
-import { useAppState, useAppDispatch } from "../store";
+} from "../../api";
+import { useAppState, useAppDispatch } from "../../store";
 
 interface Props {
   onComplete: () => void;

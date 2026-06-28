@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import auth_router, chat_router,file_router,folder_router
-from db import engine
-from models.db_models import Base
-from contextlib import asynccontextmanager
-from db import init_db
+from routes import auth_router, chat_router, file_router, folder_router
+from database import engine, init_db
+from models import Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

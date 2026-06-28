@@ -7,6 +7,9 @@ Uses the same embedding model as ingest.py to convert the user's question into
 a vector, then queries ChromaDB for the nearest-neighbour chunks within the
 user's specific folder — keeping workspaces fully isolated.
 
+Embeddings are generated via the HuggingFace Inference API (no local model),
+keeping the Render free-tier deployment well under the 525 MB limit.
+
 Entry point:
     result = retrieve(question, user_id, folder_id, n_results=5)
     # result = {"chunks": [...], "sources": [...]}
@@ -14,7 +17,7 @@ Entry point:
 
 import os
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 import chromadb
 
 load_dotenv()
@@ -32,8 +35,13 @@ def _require_env(name: str) -> str:
 
 
 # ── Shared singletons (initialised once at import time) ───────────────────────
-_model_name = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
-embedding_model = SentenceTransformer(_model_name)
+_model_name = os.getenv(
+    "EMBEDDING_MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2"
+)
+embedding_model = HuggingFaceEndpointEmbeddings(
+    model=_model_name,
+    huggingfacehub_api_token=_require_env("HF_API_TOKEN"),
+)
 
 _chroma_client = chromadb.CloudClient(
     api_key=_require_env("CHROMA_API_KEY"),
@@ -61,7 +69,7 @@ def retrieve(
             "sources": list[str]  — corresponding file_ids (for citation),
         }
     """
-    query_embedding = embedding_model.encode(question).tolist()
+    query_embedding = embedding_model.embed_query(question)
 
     results = collection.query(
         query_embeddings=[query_embedding],

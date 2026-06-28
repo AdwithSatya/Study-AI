@@ -4,32 +4,33 @@ uvicorn==0.44.0
 python-dotenv==1.2.2
 email-validator==2.2.0
 
-# --- Corrected Multipart Handling (Crucial for FastAPI Form/File Uploads) ---
+# --- Multipart / File Uploads ---
 python-multipart>=0.0.27
 
-# --- Database & Async Connectors ---
+# --- Database ---
 sqlalchemy==2.0.48
 asyncpg==0.31.0
 
-# --- Security & Hashing ---
+# --- Security ---
 python-jose==3.5.0
 argon2-cffi==25.1.0
 
-# --- AI & Orchestration (LangChain ecosystem) ---
+# --- AI / LangChain ---
 langchain==1.2.15
 langchain-groq==1.1.2
 langchain-community==0.4.1
 langchain-core==1.2.19
 langchain-text-splitters==1.1.1
+langchain-huggingface==0.1.2
 groq==0.37.1
 
-# --- Vector Database & Embeddings ---
+# --- Vector DB ---
+# Embeddings are generated via HuggingFace Inference API (no local model weights)
+# — keeps the Render free-tier deployment well under the 525 MB RAM limit.
 chromadb==1.5.7
-sentence-transformers==5.4.0
 
-# --- Data Extraction & Heavy Document Parsing ---
+# --- Document Parsing ---
 PyMuPDF==1.27.2.2
 python-docx==1.1.2
-unstructured[all-docs]==0.17.2
+python-pptx==1.0.2
 httpx==0.28.1
-

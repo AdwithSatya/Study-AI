@@ -6,7 +6,7 @@ Document ingestion pipeline.
 Responsibilities:
   1. Parse raw file bytes into plain text (PDF, PPTX, DOCX, TXT, MD).
   2. Split text into overlapping chunks for better retrieval coverage.
-  3. Embed each chunk with the sentence-transformer model.
+  3. Embed each chunk via the Hugging Face Inference API (no local model).
   4. Store chunks + embeddings + metadata in ChromaDB.
 
 Entry point:
@@ -14,12 +14,15 @@ Entry point:
 
 Each chunk is stored with metadata so it can be filtered per-user and per-folder
 at query time, keeping workspaces isolated from each other.
+
+NOTE: Embeddings are generated through the HuggingFace Inference API
+      (HuggingFaceEndpointEmbeddings) — no model weights are downloaded,
+      keeping the Render free-tier deployment well under the 525 MB limit.
 """
 
 import os
-import tempfile
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 
@@ -37,9 +40,14 @@ def _require_env(name: str) -> str:
     return value
 
 
-# ── Embedding model ────────────────────────────────────────────────────────────
-_model_name = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
-embedding_model = SentenceTransformer(_model_name)
+# ── Embedding model (remote API — zero local disk footprint) ───────────────────
+_model_name = os.getenv(
+    "EMBEDDING_MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2"
+)
+embedding_model = HuggingFaceEndpointEmbeddings(
+    model=_model_name,
+    huggingfacehub_api_token=_require_env("HF_API_TOKEN"),
+)
 
 # ── ChromaDB cloud client ──────────────────────────────────────────────────────
 _chroma_client = chromadb.CloudClient(
@@ -67,13 +75,15 @@ def _extract_text(file_bytes: bytes, filename: str) -> str:
         )
 
     if ext in {"ppt", "pptx"}:
-        with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
-            tmp.write(file_bytes)
-            tmp_path = tmp.name
-        from langchain_community.document_loaders import UnstructuredPowerPointLoader
-        pages = UnstructuredPowerPointLoader(tmp_path).load()
-        os.unlink(tmp_path)
-        return "\n".join(p.page_content for p in pages)
+        from pptx import Presentation
+        from io import BytesIO
+        prs = Presentation(BytesIO(file_bytes))
+        return "\n".join(
+            shape.text
+            for slide in prs.slides
+            for shape in slide.shapes
+            if hasattr(shape, "text") and shape.text.strip()
+        )
 
     if ext == "docx":
         import docx
@@ -97,6 +107,9 @@ def ingest(
     """
     Parse, chunk, embed, and store a document in ChromaDB.
 
+    Embeddings are generated via the HuggingFace Inference API — no local
+    model weights are loaded, so memory usage stays within Render's free tier.
+
     Returns:
         Number of chunks stored.
     """
@@ -106,8 +119,10 @@ def ingest(
 
     chunks = _splitter.split_text(text)
 
-    for i, chunk in enumerate(chunks):
-        embedding = embedding_model.encode(chunk).tolist()
+    # embed_documents batches all chunks in one API call
+    embeddings = embedding_model.embed_documents(chunks)
+
+    for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
         collection.add(
             ids=[f"{file_id}_{i}"],
             embeddings=[embedding],

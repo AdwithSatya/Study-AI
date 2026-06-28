@@ -14,7 +14,12 @@ app = FastAPI(title="NoteAI", version="2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://frontend-pearl-tau-79.vercel.app",
+        "http://localhost:5173",   # Vite dev server
+        "http://localhost:4173",   # Vite preview
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

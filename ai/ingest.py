@@ -25,15 +25,27 @@ import chromadb
 
 load_dotenv()
 
+
+def _require_env(name: str) -> str:
+    """Read a required environment variable; raise clearly if it is missing."""
+    value = os.getenv(name)
+    if value is None:
+        raise RuntimeError(
+            f"Required environment variable '{name}' is not set. "
+            "Check your .env file."
+        )
+    return value
+
+
 # ── Embedding model ────────────────────────────────────────────────────────────
 _model_name = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 embedding_model = SentenceTransformer(_model_name)
 
 # ── ChromaDB cloud client ──────────────────────────────────────────────────────
 _chroma_client = chromadb.CloudClient(
-    api_key=os.getenv("CHROMA_API_KEY"),
-    tenant=os.getenv("CHROMA_TENANT"),
-    database=os.getenv("CHROMA_DATABASE"),
+    api_key=_require_env("CHROMA_API_KEY"),
+    tenant=_require_env("CHROMA_TENANT"),
+    database=_require_env("CHROMA_DATABASE"),
 )
 collection = _chroma_client.get_or_create_collection(name="study_notes")
 

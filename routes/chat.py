@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from db import get_db
-from models.db_models import User, Chat,Folder
+from database import get_db
+from models.orm import User, Chat,Folder
 from models.schemas import Request, Response
-from agent import response as get_ai_response
-from core.deps import get_current_user
+from ai.agent import get_response as get_ai_response
+from core.auth_deps import get_current_user
 import uuid
 from datetime import datetime, timezone
 router = APIRouter(prefix="/chat", tags=["chat"])

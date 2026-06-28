@@ -49,7 +49,7 @@ ph = PasswordHasher(
 SECRET_KEY         = os.getenv("SECRET_KEY")          # signs access tokens
 REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY")  # signs refresh tokens (separate key)
 ALGORITHM         = os.getenv("JWT_ALGORITHM")
-EXPIRE_MINS        = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+EXPIRE_MINS        = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

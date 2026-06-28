@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import List
 from datetime import datetime
 from uuid import UUID
 
@@ -64,7 +63,7 @@ class Request(BaseModel):
 
 class Response(BaseModel):
     answer: str
-    sources: List[str]
+    sources: list[str]
 class ChatCreate(BaseModel):
     chat_name: str
     folder_id: UUID
